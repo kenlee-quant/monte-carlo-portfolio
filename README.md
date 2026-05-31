@@ -102,3 +102,9 @@ Through this project, I learned how Monte Carlo simulation can be used to model 
 I also learned that average return alone is not enough to evaluate portfolio risk. Portfolio risk depends heavily on volatility, correlation, diversification, and tail outcomes.
 
 This project helped me connect Python programming with quantitative finance concepts such as portfolio risk, VaR, CVaR, covariance, and correlation.
+## Notebook Version
+
+If GitHub fails to preview the notebook, please download and open:
+
+- analysis.ipynb (Jupyter Notebook)
+- analysis.html (HTML export version)
