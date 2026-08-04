@@ -1,4 +1,4 @@
-# Interview Notes — Monte Carlo Portfolio Risk Analysis 2.0
+# Interview Notes — Monte Carlo Portfolio Risk Analysis
 
 ## 30-second explanation
 
@@ -10,9 +10,10 @@ The goal was to move beyond a single portfolio forecast and model a distribution
 
 I defined portfolio loss as initial value minus terminal value and estimated 95% and 99% VaR and CVaR. I then checked whether the empirical correlations from the simulated returns matched the target correlation matrix, compared low- and high-correlation scenarios, stressed volatility, and ran a convergence analysis across different simulation counts. The main lesson was that higher correlation weakens diversification, while higher volatility increases the severity of tail losses.
 
-## 中文理解
+## Internal Notes (Chinese)
 
 這個專案不是預測一個唯一的未來結果，而是建立 10,000 種可能的投資組合結果。我先設定三項資產的年化報酬、波動率、權重和相關係數，再利用 Cholesky decomposition 產生具有指定相關性的隨機衝擊。
+
 
 接著，我把資產報酬依權重組成投資組合報酬，複利累積 252 個交易日，並從最終價值推導 loss distribution。VaR 是損失門檻，CVaR 是超過門檻後最差尾部損失的平均。我也驗證模擬出的相關係數是否接近輸入矩陣，並比較高相關、高波動情境以及不同模擬次數下風險估計的穩定性。
 

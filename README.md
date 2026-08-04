@@ -1,4 +1,4 @@
-# Monte Carlo Portfolio Risk Analysis 2.0
+# Monte Carlo Portfolio Risk Analysis
 
 A reproducible Python project that simulates a correlated three-asset portfolio and evaluates downside and tail risk using Value-at-Risk (VaR), Conditional Value-at-Risk (CVaR), stress scenarios, and convergence diagnostics.
 
@@ -6,7 +6,7 @@ A reproducible Python project that simulates a correlated three-asset portfolio 
 
 A point forecast does not describe the range of possible portfolio outcomes. This project generates a full distribution of future portfolio values and shows how volatility and correlation influence diversification, loss probability, VaR, and CVaR.
 
-## What is improved in Version 2.0
+## Key Features
 
 - Vectorized 10,000-path simulation for clearer and faster code
 - Annualized return/volatility inputs with daily geometric compounding
@@ -23,7 +23,7 @@ A point forecast does not describe the range of possible portfolio outcomes. Thi
 ## Project structure
 
 ```text
-monte-carlo-portfolio-risk-analysis-2.0/
+monte-carlo-portfolio-risk-analysis/
 ├── notebooks/
 │   └── analysis.ipynb
 ├── src/
