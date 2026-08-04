@@ -1,110 +1,130 @@
-# Monte Carlo Simulation for Portfolio Risk Analysis
+# Monte Carlo Portfolio Risk Analysis 2.0
 
-## Project Overview
+A reproducible Python project that simulates a correlated three-asset portfolio and evaluates downside and tail risk using Value-at-Risk (VaR), Conditional Value-at-Risk (CVaR), stress scenarios, and convergence diagnostics.
 
-This project uses Monte Carlo simulation to evaluate portfolio downside risk under uncertain market conditions.
+## Why this project matters
 
-The project simulates future portfolio value paths for a multi-asset portfolio using assumptions about expected returns, volatilities, correlations, and portfolio weights. It then uses the distribution of final portfolio values to calculate Value-at-Risk (VaR) and Conditional Value-at-Risk (CVaR).
+A point forecast does not describe the range of possible portfolio outcomes. This project generates a full distribution of future portfolio values and shows how volatility and correlation influence diversification, loss probability, VaR, and CVaR.
 
-The goal of this project is to demonstrate how simulation can be used to understand portfolio uncertainty, downside risk, diversification, and tail risk.
+## What is improved in Version 2.0
 
----
+- Vectorized 10,000-path simulation for clearer and faster code
+- Annualized return/volatility inputs with daily geometric compounding
+- Loss-based VaR and CVaR definitions
+- Correlated shocks through Cholesky decomposition
+- Input validation, reproducible random seed, and reusable functions
+- Analytical portfolio return and volatility check
+- Empirical validation of the simulated correlation structure
+- Low/high-correlation and base/high-volatility stress scenarios
+- VaR/CVaR convergence analysis across simulation counts
+- Automated tests for shape, reproducibility, and CVaR logic
+- Interview notes that explain assumptions, limitations, and extensions
 
-## Key Features
+## Project structure
 
-* Monte Carlo price path simulation
-* Multi-asset portfolio simulation
-* Portfolio weights and daily return calculation
-* Correlation matrix
-* Covariance matrix
-* Cholesky decomposition
-* Correlated random shocks
-* Final portfolio value distribution
-* Value-at-Risk (VaR)
-* Conditional Value-at-Risk (CVaR)
-* Correlation scenario analysis
-* Volatility scenario analysis
-* Data visualization using Matplotlib
+```text
+monte-carlo-portfolio-risk-analysis-2.0/
+├── notebooks/
+│   └── analysis.ipynb
+├── src/
+│   ├── __init__.py
+│   └── risk_model.py
+├── tests/
+│   └── test_risk_model.py
+├── outputs/
+├── README.md
+├── interview_notes.md
+├── requirements.txt
+└── .gitignore
+```
 
----
+## Baseline portfolio
+
+| Input | Value |
+|---|---:|
+| Initial value | $1,000,000 |
+| Assets | 3 |
+| Weights | 40%, 40%, 20% |
+| Horizon | 252 trading days |
+| Simulations | 10,000 |
+| Annual expected returns | 8%, 5%, 6% |
+| Annual volatilities | 20%, 15%, 25% |
+
+The figures are illustrative assumptions rather than calibrated market estimates.
 
 ## Methodology
 
-The project follows these steps:
+1. Validate weights, volatilities, and the positive-definite correlation matrix.
+2. Convert independent standard-normal shocks into correlated shocks with a Cholesky factor.
+3. Simulate annualized geometric asset returns at a daily frequency.
+4. Convert asset returns into portfolio returns using fixed weights.
+5. Compound portfolio returns over 252 trading days.
+6. Define loss as initial value minus terminal value.
+7. Estimate 95% and 99% VaR and CVaR from the simulated loss distribution.
+8. Stress correlation and volatility assumptions.
+9. check whether simulated correlations match target correlations.
+10. examine Monte Carlo convergence.
 
-1. Define portfolio assumptions, including initial capital, trading days, number of simulations, and asset weights.
-2. Define expected returns and volatilities for each asset.
-3. Create a correlation matrix to model how assets move together.
-4. Convert the correlation matrix into correlated random shocks using Cholesky decomposition.
-5. Simulate daily asset returns.
-6. Convert asset returns into portfolio daily returns using portfolio weights.
-7. Compound daily returns to generate future portfolio value paths.
-8. Use the final portfolio value distribution to calculate VaR and CVaR.
-9. Run scenario analysis to test how changes in correlation and volatility affect downside risk.
+## Risk definitions
 
----
+For a loss random variable \(L\):
 
-## Key Risk Metrics
+- **VaR at confidence \(c\)** is the \(c\)-quantile of the loss distribution.
+- **CVaR at confidence \(c\)** is the average loss conditional on losses being at least as large as VaR.
 
-### Value-at-Risk (VaR)
+CVaR should be greater than or equal to VaR because it averages the tail beyond the cutoff.
 
-VaR estimates the potential portfolio loss at a given confidence level.
+## How to run in VS Code
 
-For example, a 95% VaR measures the loss threshold such that only 5% of simulated outcomes are worse than that level.
+```bash
+python -m venv .venv
+```
 
-### Conditional Value-at-Risk (CVaR)
+Windows PowerShell:
 
-CVaR measures the average loss in the worst scenarios beyond the VaR threshold.
+```powershell
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+jupyter notebook notebooks/analysis.ipynb
+```
 
-CVaR is useful because it provides more information about tail risk than VaR alone.
+Run tests:
 
----
+```bash
+pytest
+```
 
-## Scenario Analysis
+## Main findings
 
-### Correlation Scenario
+The exact numbers are generated by the notebook, but the expected risk intuition is:
 
-The project compares low-correlation and high-correlation portfolios.
+- Higher correlation reduces diversification and generally increases downside risk.
+- Higher volatility widens the terminal-value distribution and increases VaR/CVaR.
+- CVaR exceeds VaR because it measures average severity beyond the loss threshold.
+- Increasing simulations makes estimates more stable, although Monte Carlo error never disappears completely.
 
-Higher correlation reduces diversification benefits because assets tend to move together. This can increase downside risk and lead to higher VaR and CVaR.
+## Model limitations
 
-### Volatility Scenario
+- Expected returns, volatilities, and correlations are assumed rather than estimated from market data.
+- Parameters remain constant through the horizon.
+- Asset innovations are normally distributed.
+- The portfolio uses fixed weights without transaction costs or rebalancing.
+- The model does not include volatility clustering, jumps, liquidity risk, or regime changes.
 
-The project compares base-volatility and high-volatility assumptions.
+## Natural extensions
 
-Higher volatility increases the dispersion of simulated outcomes and leads to larger downside losses in adverse scenarios.
+- Calibrate inputs with historical market data
+- Compare parametric, historical, and Monte Carlo VaR
+- Backtest VaR exceptions
+- Use Student-t shocks or historical bootstrap returns
+- Add rolling volatility/correlation estimates
+- Add GARCH volatility forecasts
+- Model periodic rebalancing and transaction costs
 
----
+## Resume-ready description
 
-## Technologies Used
+> Built a vectorized three-asset Monte Carlo engine generating 10,000 correlated 252-day portfolio paths using covariance modeling and Cholesky decomposition; estimated 95%/99% VaR and CVaR, validated simulated correlations, and stress-tested correlation and volatility assumptions.
 
-* Python
-* NumPy
-* Pandas
-* Matplotlib
-* Jupyter Notebook
-* Git / GitHub
+## Disclaimer
 
----
-
-## Files
-
-* `analysis.ipynb`: Main notebook containing the full Monte Carlo simulation and risk analysis.
-* `README.md`: Project overview and methodology.
-* `interview_notes.md`: Interview explanation and key talking points.
-
----
-
-## What I Learned
-
-Through this project, I learned how Monte Carlo simulation can be used to model uncertainty in portfolio values.
-
-I also learned that average return alone is not enough to evaluate portfolio risk. Portfolio risk depends heavily on volatility, correlation, diversification, and tail outcomes.
-
-This project helped me connect Python programming with quantitative finance concepts such as portfolio risk, VaR, CVaR, covariance, and correlation.
-## Notebook Version
-
-If GitHub fails to preview the notebook, please download and open:
-
-- analysis.ipynb (Jupyter Notebook)
-- analysis.html (HTML export version)
+This project is for educational and portfolio purposes and is not investment advice.

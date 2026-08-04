@@ -1,124 +1,63 @@
-# Interview Notes
+# Interview Notes — Monte Carlo Portfolio Risk Analysis 2.0
 
-## 60-Second Project Explanation
+## 30-second explanation
 
-This project uses Monte Carlo simulation to evaluate portfolio downside risk.
+I built a vectorized Monte Carlo model in Python to evaluate the downside risk of a three-asset portfolio. I generated 10,000 correlated return paths over 252 trading days using Cholesky decomposition, then calculated 95% and 99% VaR and CVaR from the loss distribution. I also validated the simulated correlation structure, tested higher-correlation and higher-volatility scenarios, and checked how stable the risk estimates became as the number of simulations increased.
 
-I first defined the portfolio assumptions, including initial capital, asset weights, expected returns, volatilities, and correlations.
+## 60-second explanation
 
-Then I used Cholesky decomposition to generate correlated random shocks, because assets in real financial markets do not move independently.
+The goal was to move beyond a single portfolio forecast and model a distribution of possible outcomes. I specified annual expected returns, volatilities, portfolio weights, and a correlation matrix for three assets. I used Cholesky decomposition to convert independent normal shocks into correlated shocks, generated daily geometric returns, and compounded the weighted portfolio returns over 252 trading days for 10,000 simulations.
 
-After that, I simulated daily asset returns and converted them into portfolio daily returns using the portfolio weights.
+I defined portfolio loss as initial value minus terminal value and estimated 95% and 99% VaR and CVaR. I then checked whether the empirical correlations from the simulated returns matched the target correlation matrix, compared low- and high-correlation scenarios, stressed volatility, and ran a convergence analysis across different simulation counts. The main lesson was that higher correlation weakens diversification, while higher volatility increases the severity of tail losses.
 
-By compounding those returns over 252 trading days, I generated many possible future portfolio value paths.
+## 中文理解
 
-Finally, I used the distribution of final portfolio values to calculate VaR and CVaR.
+這個專案不是預測一個唯一的未來結果，而是建立 10,000 種可能的投資組合結果。我先設定三項資產的年化報酬、波動率、權重和相關係數，再利用 Cholesky decomposition 產生具有指定相關性的隨機衝擊。
 
-The key lesson is that average return is not enough. Portfolio risk depends heavily on volatility, correlation, diversification, and tail risk.
+接著，我把資產報酬依權重組成投資組合報酬，複利累積 252 個交易日，並從最終價值推導 loss distribution。VaR 是損失門檻，CVaR 是超過門檻後最差尾部損失的平均。我也驗證模擬出的相關係數是否接近輸入矩陣，並比較高相關、高波動情境以及不同模擬次數下風險估計的穩定性。
 
----
+## Core questions
 
-## Simple Chinese Explanation
+### Why Monte Carlo instead of one forecast?
 
-這個 project 是用 Monte Carlo simulation 模擬投資組合未來可能的價值變化。
+A single forecast hides uncertainty. Monte Carlo simulation produces a distribution of possible outcomes, which allows me to estimate probabilities, quantiles, and tail losses.
 
-我先設定初始本金、資產權重、平均報酬、波動率和相關性。
+### Why Cholesky decomposition?
 
-接著我用 Cholesky decomposition 把原本彼此獨立的 random shocks 轉換成有相關性的 shocks，因為真實市場裡的資產不會完全獨立移動。
+Independent shocks would incorrectly imply zero dependence. If \(C = LL^\top\), multiplying independent standard-normal shocks by \(L\) produces shocks with correlation structure \(C\).
 
-然後我模擬每天的資產報酬率，再根據 portfolio weights 算出整個 portfolio 的每日報酬率。
+### Why use geometric returns?
 
-最後，我把每天的報酬率複利累積成未來 252 個交易日的 portfolio value paths，並用最終價值分布計算 VaR 和 CVaR。
+Geometric compounding keeps the path consistent with multiplicative wealth dynamics. The implementation simulates asset log returns, converts them to simple returns, and then applies portfolio weights.
 
-這個 project 最重要的概念是：平均報酬不夠，真正的風險來自 volatility、correlation 和 tail risk。
+### How did you calculate VaR?
 
----
+I first defined loss as initial portfolio value minus terminal portfolio value. The 95% VaR is the 95th percentile of that loss distribution.
 
-## Key Concepts
+### How did you calculate CVaR?
 
-### Monte Carlo Simulation
+CVaR is the average of losses that are greater than or equal to the VaR cutoff. It measures the severity of the tail rather than only the threshold.
 
-Monte Carlo simulation uses repeated random sampling to model uncertainty.
+### Why should CVaR be at least as large as VaR?
 
-In this project, each simulation represents one possible future path of the portfolio.
+Because CVaR averages losses in the tail beyond the VaR cutoff. Those losses are, by construction, no smaller than the cutoff.
 
-### Portfolio Weights
+### How did you validate the simulation?
 
-Portfolio weights determine how much capital is allocated to each asset.
+I checked input validity, used a fixed seed for reproducibility, compared empirical simulated correlations with the target matrix, created automated tests, and examined VaR/CVaR convergence as simulation count increased.
 
-The portfolio return is the weighted average of individual asset returns.
+### What is the biggest limitation?
 
-### Correlation
+The model assumes constant expected returns, volatilities, correlations, and normally distributed innovations. Real markets exhibit fat tails, volatility clustering, jumps, and correlation changes during stress.
 
-Correlation measures how assets move together.
+### What would you add next?
 
-Higher correlation reduces diversification benefits because assets are more likely to rise and fall together.
+I would calibrate the model with historical data, compare Monte Carlo VaR with historical and parametric VaR, backtest exceptions, and introduce Student-t or GARCH-based volatility dynamics.
 
-### Covariance
+## Honest positioning
 
-Covariance combines volatility and correlation.
+Do not claim that this model predicts actual market prices. It is a risk-modeling framework under stated assumptions.
 
-It measures how two assets move together in return units.
+Do not call the project regression. Monte Carlo simulation and regression are different methods.
 
-### Cholesky Decomposition
-
-Cholesky decomposition is used to transform independent random shocks into correlated random shocks.
-
-This allows the simulation to better reflect real financial markets, where assets are often correlated.
-
-### Value-at-Risk (VaR)
-
-VaR estimates the potential loss threshold at a given confidence level.
-
-A 95% VaR means that only 5% of simulated outcomes are worse than that loss threshold.
-
-### Conditional Value-at-Risk (CVaR)
-
-CVaR measures the average loss beyond the VaR threshold.
-
-It is useful for understanding tail risk because it focuses on the worst-case scenarios.
-
----
-
-## Common Interview Questions and Answers
-
-### Q1: What is the goal of this project?
-
-The goal is to use Monte Carlo simulation to evaluate portfolio downside risk and understand the distribution of possible future portfolio values.
-
-### Q2: Why did you use Monte Carlo simulation?
-
-I used Monte Carlo simulation because future market returns are uncertain. Instead of producing only one forecast, Monte Carlo simulation generates many possible outcomes and helps quantify downside risk probabilistically.
-
-### Q3: Why is correlation important?
-
-Correlation is important because it affects diversification. If assets are highly correlated, they tend to move together, which reduces diversification benefits and can increase portfolio risk.
-
-### Q4: What does Cholesky decomposition do in this project?
-
-Cholesky decomposition converts independent random shocks into correlated random shocks. This is important because financial assets are usually correlated in real markets.
-
-### Q5: What is the difference between VaR and CVaR?
-
-VaR gives the loss threshold at a given confidence level, while CVaR measures the average loss beyond that threshold.
-
-CVaR is more informative for tail risk because it focuses on the worst simulated outcomes.
-
-### Q6: What did you learn from the scenario analysis?
-
-I learned that higher correlation reduces diversification benefits and higher volatility increases downside risk. Even when the average final portfolio value is similar, VaR and CVaR can increase significantly under higher-risk assumptions.
-
----
-
-## Technical Skills Demonstrated
-
-* Python programming
-* NumPy matrix operations
-* Pandas DataFrame analysis
-* Matplotlib visualization
-* Monte Carlo simulation
-* Portfolio risk modeling
-* VaR and CVaR calculation
-* Correlation and covariance analysis
-* Cholesky decomposition
-* Scenario analysis
+Do not claim that the inputs came from live market data unless you later add and document that extension.
